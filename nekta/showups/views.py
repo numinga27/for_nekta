@@ -1,5 +1,7 @@
 from rest_framework import viewsets, permissions
 from rest_framework.authtoken.views import ObtainAuthToken
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 
 
 from .permessions import IsRequestAuthorOrAdmin
@@ -9,12 +11,14 @@ from .serializers import (UserSerializer, RequestSerializer, RequestMessageSeria
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    '''Метод создания пользователей'''
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
 
 
 class RequestViewSet(viewsets.ModelViewSet):
+    '''Метод для заявок'''
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     permission_classes = [IsRequestAuthorOrAdmin]
@@ -22,14 +26,35 @@ class RequestViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def retrieve(self, request, pk=None):
+        queryset = Request.objects.all()
+        request_obj = get_object_or_404(queryset, pk=pk)
+        serializer = RequestSerializer(request_obj)
+        return Response(serializer.data)
+    
+    def list(self, request):
+        queryset = Request.objects.filter(created_by=request.user)
+        serializer = RequestSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+
 
 class RequestMessageViewSet(viewsets.ModelViewSet):
+    '''Метод для сообщений заявок'''
     queryset = RequestMessage.objects.all()
     serializer_class = RequestMessageSerializer
     permission_classes = [IsRequestAuthorOrAdmin]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+    
+    
+    def list(self, request):
+        queryset = RequestMessage.objects.filter(message_request__created_by=request.user)
+        serializer = RequestMessageSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+   
 
 
 class RequestMembershipViewSet(viewsets.ModelViewSet):
