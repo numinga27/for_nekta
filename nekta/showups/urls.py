@@ -1,19 +1,18 @@
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework.authtoken import views
-from django.urls import include, path
+from .views import (UserViewSet, RequestViewSet, RequestMessageViewSet, 
+                    RequestMembershipViewSet, MessageMembershipViewSet)
 
-from .views import RequestViewSet, RequestMessageViewSet
 
 app_name = 'showups'
 
-router_v1 = DefaultRouter()
-router_v1.register(r'request', RequestViewSet)
-router_v1.register(r'request/(?P<request_id>\d+)/messages', RequestMessageViewSet,
-                   basename='messages'
-                   )
 
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'requests', RequestViewSet)
+router.register(r'messages', RequestMessageViewSet)
+router.register(r'request-memberships', RequestMembershipViewSet)
+router.register(r'message-memberships', MessageMembershipViewSet)
 
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
-    path('v1/api-token-auth/', views.obtain_auth_token),
-]
+    path('v1/', include(router.urls)),]

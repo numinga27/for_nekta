@@ -1,10 +1,14 @@
 from rest_framework import permissions
 
-
-class IsOwnerOrReadOnly(permissions.BasePermission):
+class IsRequestAuthorOrAdmin(permissions.BasePermission):
+    
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            return True
+        elif view.action == 'list' or view.action == 'retrieve':
+            return True
+        else:
+            return False
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return obj.author == request.user
+        return obj.author == request.user or request.user.is_staff

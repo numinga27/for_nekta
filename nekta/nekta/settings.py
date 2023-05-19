@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'showups.apps.ShowupsConfig',
     'rest_framework',
+    'djoser',
     'rest_framework.authtoken',
 ]
 
@@ -54,7 +55,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'nekta.urls'
-
+AUTH_USER_MODEL = 'showups.User'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -124,11 +125,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
-    ],
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    ]
-} 
+    ),
+    'DEFAULT_AUTHENTICATION': {
+        'rest_framework.authentication.TokenAuthentication': {
+            'TOKEN_EXPIRE_SECONDS': 3600,
+        },
+    },
+}
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

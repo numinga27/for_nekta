@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Request, RequestMessage
+from .models import Request, RequestMessage, User
 
 
 class RequestAdmin(admin.ModelAdmin):
@@ -13,3 +13,4 @@ class RequestAdmin(admin.ModelAdmin):
 
 admin.site.register(Request, RequestAdmin)
 admin.site.register(RequestMessage)
+admin.site.register(User)

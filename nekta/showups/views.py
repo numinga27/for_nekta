@@ -1,34 +1,52 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, permissions
+from rest_framework.authtoken.views import ObtainAuthToken
 
 
-from .models import Request, RequestMessage
-from .permessions import IsOwnerOrReadOnly
-from .serializers import RequestSerializer, RequestMessageSerializer
+from .permessions import IsRequestAuthorOrAdmin
+from .models import User, Request, RequestMessage, RequestMembership, MessageMembership
+from .serializers import (UserSerializer, RequestSerializer, RequestMessageSerializer, 
+                          RequestMembershipSerializer, MessageMembershipSerializer,TokenSerializer)
 
-# Create your views here.
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
 class RequestViewSet(viewsets.ModelViewSet):
-    '''Метод заявки'''
-    serializer_class = RequestSerializer
     queryset = Request.objects.all()
-    permission_classes = (IsOwnerOrReadOnly, )
+    serializer_class = RequestSerializer
+    permission_classes = [IsRequestAuthorOrAdmin]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+
 class RequestMessageViewSet(viewsets.ModelViewSet):
-    ''' Метод для сообщений '''
+    queryset = RequestMessage.objects.all()
     serializer_class = RequestMessageSerializer
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = [IsRequestAuthorOrAdmin]
 
     def perform_create(self, serializer):
-        request_id = self.kwargs.get('request_id')
-        request = get_object_or_404(Request, id=request_id)
-        serializer.save(author=self.request.user, requests=request)
+        serializer.save(author=self.request.user)
 
-    def get_queryset(self):
-        request_id = self.kwargs.get("request_id")
-        request_i= get_object_or_404(Request, id=request_id)
 
-        return request_i.messages.all()
+class RequestMembershipViewSet(viewsets.ModelViewSet):
+    queryset = RequestMembership.objects.all()
+    serializer_class = RequestMembershipSerializer
+    permission_classes = [IsRequestAuthorOrAdmin]
+
+
+class MessageMembershipViewSet(viewsets.ModelViewSet):
+    queryset = MessageMembership.objects.all()
+    serializer_class = MessageMembershipSerializer
+    permission_classes = [IsRequestAuthorOrAdmin]
+
+
+class AuthToken(ObtainAuthToken):
+    """Авторизация пользователя."""
+
+    serializer_class = TokenSerializer
+    permission_classes = [permissions.AllowAny]
+
