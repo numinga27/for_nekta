@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .permessions import IsRequestAuthorOrAdmin
 from .models import User, Request, RequestMessage, RequestMembership, MessageMembership
 from .serializers import (UserSerializer, RequestSerializer, RequestMessageSerializer, 
-                          RequestMembershipSerializer, MessageMembershipSerializer,TokenSerializer)
+                          RequestMembershipSerializer, MessageMembershipSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -58,20 +58,17 @@ class RequestMessageViewSet(viewsets.ModelViewSet):
 
 
 class RequestMembershipViewSet(viewsets.ModelViewSet):
+    '''Модель для тех кто может видеть заявки '''
     queryset = RequestMembership.objects.all()
     serializer_class = RequestMembershipSerializer
     permission_classes = [IsRequestAuthorOrAdmin]
 
 
 class MessageMembershipViewSet(viewsets.ModelViewSet):
+    '''Метод для тех кто может видеть и оставлять сообщения'''
     queryset = MessageMembership.objects.all()
     serializer_class = MessageMembershipSerializer
     permission_classes = [IsRequestAuthorOrAdmin]
 
 
-class AuthToken(ObtainAuthToken):
-    """Авторизация пользователя."""
-
-    serializer_class = TokenSerializer
-    permission_classes = [permissions.AllowAny]
 

@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 class IsRequestAuthorOrAdmin(permissions.BasePermission):
-    
+    '''Пермишен для тех кто имеет права видеть и создавать заявки и сообщения'''
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return True

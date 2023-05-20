@@ -5,6 +5,7 @@ from .models import (Request, RequestMessage,
                       RequestMembership, MessageMembership, User)
 
 class UserSerializer(serializers.ModelSerializer):
+    '''Сериализатор для юзера'''
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name','password']
@@ -20,18 +21,21 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class RequestSerializer(serializers.ModelSerializer):
+    '''Сериазатор для заявок '''
     author = UserSerializer(read_only=True)
     class Meta:
         model = Request
         fields = ['id', 'title', 'description', 'date', 'author', 'status']
 
 class RequestMessageSerializer(serializers.ModelSerializer):
+    '''Сериализатор для сообщений'''
     user = UserSerializer(read_only=True)
     class Meta:
         model = RequestMessage
         fields = ['id', 'comment', 'date', 'user', 'request']
 
 class RequestMembershipSerializer(serializers.ModelSerializer):
+    '''Сериализатор для тех кто может видеть и создавать заявки'''
     user = UserSerializer(read_only=True)
     request = RequestSerializer(read_only=True)
     class Meta:
@@ -39,6 +43,7 @@ class RequestMembershipSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'request', 'date_joined']
 
 class MessageMembershipSerializer(serializers.ModelSerializer):
+    '''Сериализатор для тех кто может видеть и создавать сообщения '''
     user = UserSerializer(read_only=True)
     message = RequestMessageSerializer(read_only=True)
     class Meta:
@@ -46,39 +51,3 @@ class MessageMembershipSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'message', 'date_joined']
 
 
-class TokenSerializer(serializers.Serializer):
-    email = serializers.CharField(
-        label='Email',
-        write_only=True)
-    password = serializers.CharField(
-        label='Пароль',
-        style={'input_type': 'password'},
-        trim_whitespace=False,
-        write_only=True
-    )
-    token = serializers.CharField(
-        label='Токен',
-        read_only=True
-    )
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
-        if email and password:
-            user = authenticate(
-                request=self.context.get('request'),
-                email=email,
-                password=password)
-            if not user:
-                raise serializers.ValidationError(
-                    code='authorization'
-                )
-        else:
-            msg = 'Необходимо указать "адрес электронной почты" и "пароль".'
-            raise serializers.ValidationError(
-                msg,
-                code='authorization'
-            )
-        attrs['user'] = user
-        return attrs
-    
