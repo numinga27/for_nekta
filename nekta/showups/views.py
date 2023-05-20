@@ -33,7 +33,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
     def list(self, request):
-        queryset = Request.objects.filter(created_by=request.user)
+        queryset = Request.objects.filter(author=request.user)
         serializer = RequestSerializer(queryset, many=True)
         return Response(serializer.data)
     
@@ -50,7 +50,7 @@ class RequestMessageViewSet(viewsets.ModelViewSet):
     
     
     def list(self, request):
-        queryset = RequestMessage.objects.filter(message_request__created_by=request.user)
+        queryset = RequestMessage.objects.filter(message_request__author=request.user)
         serializer = RequestMessageSerializer(queryset, many=True)
         return Response(serializer.data)
 
